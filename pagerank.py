@@ -67,6 +67,7 @@ def transition_model(corpus, current_page, damping_factor):
     if len(visitable_pages) == 0:
         for page in corpus:
             probability_distribution[page] = 1 / total_pages_corpus
+        return probability_distribution
 
     pages_probability = damping_factor / len(visitable_pages)
     for page in corpus:
@@ -118,25 +119,22 @@ def iterate_pagerank(corpus, damping_factor):
     total_pages_corpus = len(corpus)
     for page in corpus:
         estimated_page_rank[page] = 1 / total_pages_corpus
-    cpt = 0
     while True:
         should_stop = True
         for page in estimated_page_rank:
             sum_pages = 0
             for i in corpus:
+                if len(corpus[i]) == 0:
+                    sum_pages += estimated_page_rank[i] / total_pages_corpus
                 if i == page or page not in corpus[i]:
                     continue
                 num_links = len(corpus[i])
-                if num_links == 0:
-                    num_links = total_pages_corpus
                 sum_pages += estimated_page_rank[i] / num_links
             p = ((1 - damping_factor) / total_pages_corpus +
                                     damping_factor * sum_pages)
             if abs(estimated_page_rank[page] - p) > 0.001:
                 should_stop = False
             estimated_page_rank[page] = p
-        print(cpt)
-        cpt +=1
         if should_stop:
             break
     return estimated_page_rank
